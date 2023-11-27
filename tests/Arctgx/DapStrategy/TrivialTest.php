@@ -9,6 +9,9 @@ class TrivialTest extends TestCase
     private function bar(): void
     {
         echo 'bar';
+        echo '';
+        echo '';
+        echo '';
     }
 
     private function foo(): void
