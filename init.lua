@@ -36,7 +36,6 @@ local plugins = {
   ['nvim-dap'] = {url = 'https://github.com/mfussenegger/nvim-dap'},
   ['nvim-treesitter'] = {url = 'https://github.com/nvim-treesitter/nvim-treesitter'},
   ['nvim-dap-ui'] = {url = 'https://github.com/rcarriga/nvim-dap-ui'},
-  ['nvim-dap-tab'] = {url = 'https://github.com/przepompownia/nvim-dap-tab'},
   ['osv'] = {url = 'https://github.com/jbyuki/one-small-step-for-vimkind'},
 }
 
@@ -101,7 +100,7 @@ local function init()
   dapui.setup({
 
   })
-  require('dap-tab').setup()
+  -- require('dap-tab').setup()
 
   vim.api.nvim_create_user_command('OSVLaunch', function ()
     require('osv').launch {
@@ -132,6 +131,7 @@ local function init()
   vim.keymap.set({'n'}, ',de', function ()
     require'dap.ui.widgets'.hover(vim.fn.expand('<cWORD>'))
   end, {})
+  -- vim.iter(require'dap'.session().threads):fold({}, function(ids, thread) vim.iter(thread.frames):each(function(frame) ids[frame.id] = {id = frame.id, line = frame.line, name = frame.name} end); return ids end)
 
   vim.api.nvim_create_autocmd('FileType', {
     pattern = 'php',
@@ -151,6 +151,7 @@ local function init()
     dap.continue()
     dap.listeners.after['event_initialized']['arctgx'] = function (_session, _body)
       vim.cmd.PhpUnitWithXdebug()
+      dapui.open()
     end
   end)
 end
