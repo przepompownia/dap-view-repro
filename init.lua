@@ -35,6 +35,7 @@ end
 local plugins = {
   ['nvim-dap'] = {url = 'https://github.com/mfussenegger/nvim-dap'},
   ['nvim-treesitter'] = {url = 'https://github.com/nvim-treesitter/nvim-treesitter'},
+  ['nio'] = {url = 'https://github.com/nvim-neotest/nvim-nio'},
   ['nvim-dap-ui'] = {url = 'https://github.com/rcarriga/nvim-dap-ui'},
   ['osv'] = {url = 'https://github.com/jbyuki/one-small-step-for-vimkind'},
 }
