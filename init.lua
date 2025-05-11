@@ -70,15 +70,6 @@ local function init()
         max_data = 1024,
         max_depth = 4,
       },
-      breakpoints = {
-        exception = {
-          Notice = false,
-          Warning = false,
-          Error = false,
-          Exception = false,
-          ['*'] = false,
-        },
-      },
     }
   }
 
