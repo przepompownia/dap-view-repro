@@ -2,3 +2,5 @@
 /plugins/
 /.xdg/
 /tools/
+/.luarc.jsonc
+/bin/composer

@@ -34,10 +34,8 @@ end
 
 local plugins = {
   ['nvim-dap'] = {url = 'https://github.com/mfussenegger/nvim-dap'},
-  ['nvim-treesitter'] = {url = 'https://github.com/nvim-treesitter/nvim-treesitter'},
-  ['nio'] = {url = 'https://github.com/nvim-neotest/nvim-nio'},
-  ['nvim-dap-ui'] = {url = 'https://github.com/rcarriga/nvim-dap-ui'},
-  ['osv'] = {url = 'https://github.com/jbyuki/one-small-step-for-vimkind'},
+  ['nvim-dap-view'] = {url = 'https://github.com/igorlfs/nvim-dap-view'},
+  -- ['osv'] = {url = 'https://github.com/jbyuki/one-small-step-for-vimkind'},
 }
 
 for name, repo in pairs(plugins) do
@@ -51,7 +49,7 @@ local function init()
   vim.cmd.colorscheme 'habamax'
   vim.go.termguicolors = true
   local dap = require 'dap'
-  dap.defaults.fallback.switchbuf = 'uselast'
+  dap.defaults.fallback.switchbuf = 'useopen'
   dap.set_log_level('TRACE')
   dap.adapters.php = {
     type = 'executable',
@@ -84,12 +82,6 @@ local function init()
     }
   }
 
-  require('nvim-treesitter.configs').setup {
-    ensure_installed = {'php'},
-    highlight = {
-      enable = true,
-    },
-  }
   local phpXdebugCmd = {
     'php',
     '-dzend_extension=xdebug.so',
@@ -97,19 +89,24 @@ local function init()
   }
   local phpXdebugEnv = {XDEBUG_CONFIG = 'idekey=neotest'}
 
-  local dapui = require('dapui')
-  dapui.setup({
-
+  local dv = require('dap-view')
+  dv.setup({
+    switchbuf = 'uselast',
+    help = {border = 'single'},
+    windows = {
+      terminal = {
+        hide = {'php'},
+      },
+    },
   })
-  -- require('dap-tab').setup()
 
-  vim.api.nvim_create_user_command('OSVLaunch', function ()
-    require('osv').launch {
-      host = '127.0.0.1',
-      port = 9004,
-      log = '/tmp/osv.log',
-    }
-  end, {nargs = 0})
+  -- vim.api.nvim_create_user_command('OSVLaunch', function ()
+  --   require('osv').launch {
+  --     host = '127.0.0.1',
+  --     port = 9004,
+  --     log = '/tmp/osv.log',
+  --   }
+  -- end, {nargs = 0})
 
   vim.api.nvim_create_user_command('PhpUnitWithXdebug', function (opts)
     local onExit = vim.schedule_wrap(function (obj)
@@ -128,9 +125,8 @@ local function init()
   vim.keymap.set({'n'}, ',dc', dap.close, {})
   vim.keymap.set({'n'}, ',dk', dap.up, {})
   vim.keymap.set({'n'}, ',dj', dap.down, {})
-  vim.keymap.set({'n'}, ',dg', dapui.toggle, {})
   vim.keymap.set({'n'}, ',de', function ()
-    require'dap.ui.widgets'.hover(vim.fn.expand('<cWORD>'))
+    require 'dap.ui.widgets'.hover(vim.fn.expand('<cWORD>'))
   end, {})
   -- vim.iter(require'dap'.session().threads):fold({}, function(ids, thread) vim.iter(thread.frames):each(function(frame) ids[frame.id] = {id = frame.id, line = frame.line, name = frame.name} end); return ids end)
 
@@ -141,6 +137,7 @@ local function init()
         local indicator = '%#DiagnosticError#⛧ %#StatusLine# [Listening...]'
         return dap.session() and indicator or '%#DiagnosticInfo#☠%#StatusLine# [No debug session]'
       end
+
       vim.opt_local.statusline = '%{%v:lua.ShowListeningIndicator()%} %f'
     end
   })
@@ -152,7 +149,8 @@ local function init()
     dap.continue()
     dap.listeners.after['event_initialized']['arctgx'] = function (_session, _body)
       vim.cmd.PhpUnitWithXdebug()
-      dapui.open()
+      dv.open()
+      dv.jump_to_view('threads')
     end
   end)
 end
