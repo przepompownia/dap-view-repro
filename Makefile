@@ -11,11 +11,13 @@ install-vscode-php-debug:
 	$(DIR)/bin/dap-adapter-utils install xdebug vscode-php-debug $(vscodePhpDebugVersion) $(vscodePhpDebugUrl)
 	$(DIR)/bin/dap-adapter-utils setAsCurrent vscode-php-debug $(vscodePhpDebugVersion)
 
+.ONESHELL:
 composer-get-executable:
+	[[ -e bin/composer ]] && exit
 	curl -sS https://getcomposer.org/installer | php -- --filename=bin/composer
 
 composer:
 	$(DIR)/bin/composer install
 
-start: install-vscode-php-debug  composer-get-executable composer
+start: install-vscode-php-debug composer-get-executable composer
 	$(NVIM_BINARY) -u init.lua
