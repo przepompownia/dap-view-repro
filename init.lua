@@ -12,7 +12,7 @@ vim.opt.packpath:prepend(stdPathConfig)
 
 local pluginsPath = 'plugins'
 vim.fn.mkdir(pluginsPath, 'p')
-pluginsPath = vim.uv.fs_realpath(pluginsPath)
+pluginsPath = assert(vim.uv.fs_realpath(pluginsPath))
 
 local function gitClone(url, installPath, branch)
   if vim.fn.isdirectory(installPath) ~= 0 then
