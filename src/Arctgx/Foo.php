@@ -1,17 +1,15 @@
 <?php
 
-namespace Arctgx\DapStrategy;
+namespace Arctgx;
 
-use PHPUnit\Framework\TestCase;
-
-class TrivialTest extends TestCase
+class Foo
 {
     private function bar(): void
     {
         echo 'bar';
-        echo '';
-        echo '';
-        echo '';
+        echo '2';
+        echo '3';
+        echo '4';
     }
 
     private function foo(): void
@@ -23,6 +21,5 @@ class TrivialTest extends TestCase
     {
         $this->foo();
         print(microtime(true));
-        self::assertTrue(true); 
     }
 }

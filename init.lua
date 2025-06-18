@@ -81,7 +81,7 @@ local function init()
   local phpXdebugCmd = {
     'php',
     '-dzend_extension=xdebug.so',
-    'vendor/bin/phpunit',
+    'bin/test.php',
   }
   local phpXdebugEnv = {XDEBUG_CONFIG = 'idekey=neotest'}
 
@@ -104,15 +104,15 @@ local function init()
   --   }
   -- end, {nargs = 0})
 
-  vim.api.nvim_create_user_command('PhpUnitWithXdebug', function (opts)
+  vim.api.nvim_create_user_command('PhpWithXdebug', function (opts)
     local onExit = vim.schedule_wrap(function (obj)
       vim.notify(obj.stdout)
       vim.notify(obj.stderr, vim.log.levels.WARN)
     end)
 
-    local phpunit = vim.tbl_values(phpXdebugCmd)
-    table.insert(phpunit, opts.fargs[1] or vim.api.nvim_buf_get_name(0))
-    vim.system(phpunit, {env = phpXdebugEnv}, onExit)
+    local cmd = vim.tbl_values(phpXdebugCmd)
+    table.insert(cmd, opts.fargs[1] or vim.api.nvim_buf_get_name(0))
+    vim.system(cmd, {env = phpXdebugEnv}, onExit)
   end, {nargs = '?', complete = 'file'})
 
   vim.keymap.set('n', '<Esc>', vim.cmd.fclose)
@@ -139,12 +139,12 @@ local function init()
   })
 
   vim.schedule(function ()
-    vim.cmd.edit 'tests/Arctgx/DapStrategy/TrivialTest.php'
+    vim.cmd.edit 'src/Arctgx/Foo.php'
     vim.api.nvim_win_set_cursor(0, {11, 9})
     dap.set_breakpoint()
     dap.continue()
     dap.listeners.after['event_initialized']['arctgx'] = function (_session, _body)
-      vim.cmd.PhpUnitWithXdebug()
+      vim.cmd.PhpWithXdebug()
       dv.open()
       dv.jump_to_view('threads')
     end
