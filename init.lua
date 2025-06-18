@@ -78,11 +78,7 @@ local function init()
     }
   }
 
-  local phpXdebugCmd = {
-    'php',
-    '-dzend_extension=xdebug.so',
-    'bin/test.php',
-  }
+  local phpXdebugCmd = {'php', '-c', configDir}
   local phpXdebugEnv = {XDEBUG_CONFIG = 'idekey=neotest'}
 
   local dv = require('dap-view')
@@ -144,7 +140,7 @@ local function init()
     dap.set_breakpoint()
     dap.continue()
     dap.listeners.after['event_initialized']['arctgx'] = function (_session, _body)
-      vim.cmd.PhpWithXdebug()
+      vim.cmd.PhpWithXdebug({args = {'bin/test.php'}})
       dv.open()
       dv.jump_to_view('threads')
     end
