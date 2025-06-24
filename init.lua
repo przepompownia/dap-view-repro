@@ -75,7 +75,7 @@ local function init()
       request = 'launch',
       name = 'Listen for XDebug',
       port = 9003,
-      stopOnEntry = false,
+      stopOnEntry = true,
       xdebugSettings = {
         max_children = 512,
         max_data = 1024,
@@ -99,9 +99,7 @@ local function init()
   end, {nargs = '?', complete = 'file'})
 
   vim.schedule(function ()
-    vim.cmd.edit 'src/Arctgx/Foo.php'
-    vim.api.nvim_win_set_cursor(0, {11, 9})
-    dap.set_breakpoint()
+    vim.cmd.edit 'bin/test.php'
     dap.continue()
     dap.listeners.after['event_initialized']['arctgx'] = function (_session, _body)
       vim.cmd.PhpWithXdebug({args = {'bin/test.php'}})
