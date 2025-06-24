@@ -39,7 +39,6 @@ end
 
 local plugins = {
   ['nvim-dap'] = {url = 'https://github.com/mfussenegger/nvim-dap'},
-  ['nvim-dap-view'] = {url = 'https://github.com/igorlfs/nvim-dap-view'},
   -- ['osv'] = {url = 'https://github.com/jbyuki/one-small-step-for-vimkind'},
 }
 
@@ -48,6 +47,14 @@ for name, repo in pairs(plugins) do
   gitClone(repo.url, installPath, repo.branch)
   vim.opt.runtimepath:append(installPath)
 end
+
+vim.api.nvim_create_user_command('OSVLaunch', function ()
+  require('osv').launch {
+    host = '127.0.0.1',
+    port = 9004,
+    log = '/tmp/osv.log',
+  }
+end, {nargs = 0})
 
 local function init()
   vim.wo.number = true
@@ -81,25 +88,6 @@ local function init()
   local phpXdebugCmd = {'php', '-c', configDir}
   local phpXdebugEnv = {XDEBUG_CONFIG = 'idekey=neotest'}
 
-  local dv = require('dap-view')
-  dv.setup({
-    switchbuf = 'uselast',
-    help = {border = 'single'},
-    windows = {
-      terminal = {
-        hide = {'php'},
-      },
-    },
-  })
-
-  -- vim.api.nvim_create_user_command('OSVLaunch', function ()
-  --   require('osv').launch {
-  --     host = '127.0.0.1',
-  --     port = 9004,
-  --     log = '/tmp/osv.log',
-  --   }
-  -- end, {nargs = 0})
-
   vim.api.nvim_create_user_command('PhpWithXdebug', function (opts)
     local onExit = vim.schedule_wrap(function (obj)
       vim.notify(obj.stdout)
@@ -111,29 +99,6 @@ local function init()
     vim.system(cmd, {env = phpXdebugEnv}, onExit)
   end, {nargs = '?', complete = 'file'})
 
-  vim.keymap.set('n', '<Esc>', vim.cmd.fclose)
-  vim.keymap.set({'n'}, ',dr', dap.continue, {})
-  vim.keymap.set({'n'}, ',ds', dap.step_over, {})
-  vim.keymap.set({'n'}, ',dc', dap.close, {})
-  vim.keymap.set({'n'}, ',dk', dap.up, {})
-  vim.keymap.set({'n'}, ',dj', dap.down, {})
-  vim.keymap.set({'n'}, ',de', function ()
-    require 'dap.ui.widgets'.hover(vim.fn.expand('<cWORD>'))
-  end, {})
-  -- vim.iter(require'dap'.session().threads):fold({}, function(ids, thread) vim.iter(thread.frames):each(function(frame) ids[frame.id] = {id = frame.id, line = frame.line, name = frame.name} end); return ids end)
-
-  vim.api.nvim_create_autocmd('FileType', {
-    pattern = 'php',
-    callback = function ()
-      function ShowListeningIndicator()
-        local indicator = '%#DiagnosticError#⛧ %#StatusLine# [Listening...]'
-        return dap.session() and indicator or '%#DiagnosticInfo#☠%#StatusLine# [No debug session]'
-      end
-
-      vim.opt_local.statusline = '%{%v:lua.ShowListeningIndicator()%} %f'
-    end
-  })
-
   vim.schedule(function ()
     vim.cmd.edit 'src/Arctgx/Foo.php'
     vim.api.nvim_win_set_cursor(0, {11, 9})
@@ -141,8 +106,9 @@ local function init()
     dap.continue()
     dap.listeners.after['event_initialized']['arctgx'] = function (_session, _body)
       vim.cmd.PhpWithXdebug({args = {'bin/test.php'}})
-      dv.open()
-      dv.jump_to_view('threads')
+      vim.cmd.DapToggleRepl()
+      vim.cmd.wincmd('w')
+      vim.cmd.startinsert()
     end
   end)
 end
